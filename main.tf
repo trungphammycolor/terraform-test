@@ -64,16 +64,46 @@ resource "aws_iam_role_policy" "cognito_test_email_policy" {
   )
 }
 
+# SES Email Identity for Email Verification
+resource "aws_ses_email_identity" "email_identity" {
+  email = "trung.pham@mycolor.biz"
+}
+
+# SES Identity Policy (Optional: Grants Cognito permissions to use SES)
+resource "aws_ses_identity_policy" "email_policy" {
+  name     = "SES_Identity_Policy"
+  identity = aws_ses_email_identity.email_identity.id
+  policy = jsonencode({
+    "Version" : "2012-10-17",
+    "Statement" : [
+      {
+        "Effect" : "Allow",
+        "Principal" : {
+          "Service" : "cognito-idp.amazonaws.com"
+        },
+        "Action" : "ses:SendEmail",
+        "Resource" : aws_ses_email_identity.email_identity.arn
+      }
+    ]
+  })
+}
+
+
 # Create the Admin User Pool
 resource "aws_cognito_user_pool" "cognito_test_user_pool" {
   name                     = "cognito-test-user-pool"
   auto_verified_attributes = ["email"]
-  mfa_configuration        = "ON"
+  mfa_configuration        = "OPTIONAL"
 
-
-  email_configuration {
-    from_email_address = "<trung.pham@mycolor.biz>"
+  software_token_mfa_configuration {
+    enabled = true
   }
+  email_configuration {
+    email_sending_account  = "DEVELOPER"
+    source_arn             = aws_ses_email_identity.email_identity.arn
+    reply_to_email_address = "trung.pham@mycolor.biz"
+  }
+
   account_recovery_setting {
     recovery_mechanism {
       name     = "admin_only"
@@ -242,9 +272,9 @@ resource "aws_iam_role_policy" "cognito_test_identity_authenticated_policy" {
 
 # IAM role for Identity Unauthenticated
 resource "aws_iam_role" "cognito_test_identity_unauthenticated" {
-  name = "CognitoTestIdentityPool_Unauthenticated_Role"
-  path = "/"
-  assume_role_policy = jsonencode(
+  name                  = "CognitoTestIdentityPool_Unauthenticated_Role"
+  path                  = "/"
+  assume_role_policy    = jsonencode(
     {
       Statement = [
         {
@@ -253,6 +283,14 @@ resource "aws_iam_role" "cognito_test_identity_unauthenticated" {
             Federated = "cognito-identity.amazonaws.com"
           }
           Action = "sts:AssumeRoleWithWebIdentity"
+          Condition = {
+            "StringEquals" = {
+              "cognito-identity.amazonaws.com:aud" = aws_cognito_identity_pool.cognito_test_identity_pool.id
+            }
+            "ForAnyValue:StringLike" = {
+              "cognito-identity.amazonaws.com:amr" = "unauthenticated"
+            }
+          }
         },
       ]
       Version = "2012-10-17"
