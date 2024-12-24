@@ -1,7 +1,7 @@
 // components
-import SignInHero from "~/sign-in/components/SignInHero";
-import SignInForm from "~/sign-in/components/SignInForm";
-import SignInFooter from "~/sign-in/components/SignInFooter";
+import SignInHero from "~/app/sign-in/components/SignInHero";
+import SignInForm from "~/app/sign-in/components/SignInForm";
+import SignInFooter from "~/app/sign-in/components/SignInFooter";
 
 export default function SignInPage() {
   return (

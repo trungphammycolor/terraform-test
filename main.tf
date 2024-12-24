@@ -272,9 +272,9 @@ resource "aws_iam_role_policy" "cognito_test_identity_authenticated_policy" {
 
 # IAM role for Identity Unauthenticated
 resource "aws_iam_role" "cognito_test_identity_unauthenticated" {
-  name                  = "CognitoTestIdentityPool_Unauthenticated_Role"
-  path                  = "/"
-  assume_role_policy    = jsonencode(
+  name = "CognitoTestIdentityPool_Unauthenticated_Role"
+  path = "/"
+  assume_role_policy = jsonencode(
     {
       Statement = [
         {

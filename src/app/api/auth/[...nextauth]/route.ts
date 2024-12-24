@@ -3,7 +3,7 @@ import NextAuth, { NextAuthOptions, TokenSet } from "next-auth";
 
 // nextauth provider
 import CognitoProvider from "next-auth/providers/cognito";
-import { CognitoProfile } from "next-auth/providers/cognito";
+import type { CognitoProfile } from "next-auth/providers/cognito";
 import CredentialsProvider from "next-auth/providers/credentials";
 // aws cognito-identity-provider
 import {
@@ -13,7 +13,7 @@ import {
     GetUserCommandOutput,
     AuthFlowType
 } from "@aws-sdk/client-cognito-identity-provider";
-import { UserAttributesType } from "app/types/next-auth";
+import { UserAttributesType } from "~/types/next-auth";
 
 const cognitoIdentityProvider = new CognitoIdentityProvider({
     region: process.env.NEXT_PUBLIC_AWS_COGNITO_REGION
@@ -31,16 +31,16 @@ export const authOptions: NextAuthOptions = {
             },
             checks: ["state", "nonce"],
             issuer: process.env.NEXT_PUBLIC_AWS_COGNITO_IDP_URL as string,
-            authorization: {
-                url: `${process.env.NEXT_PUBLIC_AWS_COGNITO_DOMAIN_URL}/oauth2/authorize`,
-                params: {
-                    response_type: "code",
-                    client_id: process.env.AWS_COGNITO_CLIENT_ID as string,
-                    identity_provider: "Google",
-                    scope: "openid email profile phone aws.cognito.signin.user.admin",
-                    redirect_uri: `${process.env.NEXTAUTH_URL}/api/auth/callback/cognito`
-                },
-            },
+            // authorization: {
+            //     url: `${process.env.NEXT_PUBLIC_AWS_COGNITO_DOMAIN_URL}/oauth2/authorize`,
+            //     params: {
+            //         response_type: "code",
+            //         client_id: process.env.AWS_COGNITO_CLIENT_ID as string,
+            //         identity_provider: "Google",
+            //         scope: "openid email profile phone aws.cognito.signin.user.admin",
+            //         redirect_uri: `${process.env.NEXTAUTH_URL}/api/auth/callback/cognito`
+            //     },
+            // },
             profile(profile: CognitoProfile, tokens: TokenSet) {
                 return {
                     id: profile["cognito:username"], // provided id from cognito
@@ -93,7 +93,7 @@ export const authOptions: NextAuthOptions = {
                                 console.log("error getUser", error);
                                 return reject(null);
                             }
-       
+
                             const UserAttributes: UserAttributesType = {
                                 id: user?.Username as string,
                                 idToken: session.AuthenticationResult?.IdToken,

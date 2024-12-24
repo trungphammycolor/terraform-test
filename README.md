@@ -2,8 +2,8 @@
 
 ## NextAuth & AWS Cognito env setup
 ```
-NEXTAUTH_URL=
-NEXTAUTH_SECRET=
+NEXTAUTH_URL=http://localhost
+NEXTAUTH_SECRET=2d58a5dd-8f40-43c5-a5d7-732fa6d43341
 # NEXTAUTH_SECRET use uuid4 or your secret key
 # uuid online create: https://www.uuidgenerator.net/version4
 # nextauth docs: (https://next-auth.js.org/configuration/options#secret)
